@@ -37,7 +37,7 @@ const ChatHeaders = () => {
     };
   return (
     <div 
-      className="d-flex justify-content-between p-2"
+      className="chatHeader"
       >
       <LeftCircleOutlined
         onClick={() => setSelectedChat()}

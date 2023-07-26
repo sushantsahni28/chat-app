@@ -23,7 +23,7 @@ function addChat(req,res){
                         id: chatid,
                         chatName:'',
                         chatAdmin:'',
-                        isGroupChat:0,
+                        isgroupChat:0,
                         ...data[0],
                         username:username,
                     }
@@ -75,7 +75,7 @@ async function createGroup(req,res){
 
     for(let i=0; i<tags.length; i++){
         try {
-            await addUserToSql(chatid, tags[i])         
+            await addUserToSql(chatid, tags[i].username)         
         } catch (error) {
             return res.status(500).send("Something went wrong. Try again later")           
         }    
@@ -84,8 +84,8 @@ async function createGroup(req,res){
     const result={
         id: chatid,
         chatName:groupName,
-        isGroupChat:1,
         chatAdmin:req.user,
+        isgroupChat:1,
         name:'',
         username:req.user,
     }

@@ -29,17 +29,18 @@
 }
 .sideBar{
     background-color: rgba(106, 220, 206, 0.5);
+    height: 630px;
+    overflow-y: scroll;
+}
+.sideBar::-webkit-scrollbar {
+    display: none;
+}
+.chatParent {
+    height: 630px;
 }
 .centerText{
     margin-top: 20%;
     margin-left: 22%;
-}
-.chatFeed{
-    display: flex;
-    justify-content: end;
-    flex-direction: column;
-    height: 90%;
-    padding: "20px";
 }
 .mydiv{
     background-color: rgba(138, 224, 224, 0.6);
@@ -58,4 +59,32 @@
     max-width: 40%;
     margin-bottom: 0.5%;
     margin-left: 0.5%;
+}
+
+.mainChat{
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+.chatHeader{
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem;
+}
+.chatSpace{
+    height: 475px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+.chatSpace::-webkit-scrollbar {
+    display: none;
+}
+.inputSpace{
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0.3rem;
 }

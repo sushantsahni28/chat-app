@@ -1,8 +1,9 @@
 import {Avatar, Input, List, Tooltip, notification} from "antd"
-import { ArrowLeftOutlined, FrownOutlined, SearchOutlined } from "@ant-design/icons"
+import { ArrowLeftOutlined, FrownOutlined, SearchOutlined, UsergroupAddOutlined } from "@ant-design/icons"
 import { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import ChatContext from "../Context/ChatContext"
+import CreateGroup from "../Utils/createGroup"
 
 const Sidebar = () => {
     const [api, contextHolder] = notification.useNotification()
@@ -10,8 +11,9 @@ const Sidebar = () => {
     const [show, setShow] = useState(false)
     const [query, setQuery] = useState()
     const [searchResults, setSearchResults] = useState([])
+    const [open, setOpen] = useState(false);
     
-    const {allChats, setAllChats, selectedChat, setSelectedChat } = useContext(ChatContext)
+    const {allChats, setAllChats, setSelectedChat } = useContext(ChatContext)
 
     useEffect(()=>{
         loadChats()
@@ -30,6 +32,10 @@ const Sidebar = () => {
             });
         }
     }
+
+    const showModal = () => {
+      setOpen(true);
+    };
 
     const handleChat = (chat) => {
         setSelectedChat(chat)
@@ -58,11 +64,42 @@ const Sidebar = () => {
             });
         }
     }
+    const handleBack = () => {
+      setShow(false)
+      setQuery()
+    }
+    const handleNewChat = async(item) => {
+      for(let i=0; i<allChats.length; i++){
+        if(allChats[i].isgroupChat === 0){
+          if(allChats[i].username == item.username){
+            setSelectedChat(allChats[i])
+            setShow(false)
+            setQuery()
+            return
+          }
+        } 
+      }
+      try {
+        const { data } = await axios.post("/api/chat",{
+          username: item.username
+        })
+        setAllChats([...allChats, data])
+        setSelectedChat(data)
+        setShow(false)
+        setQuery()
+      } catch (error) {
+        api.open({
+          message: error.response?.data,
+          description:
+            'Cannot create chat with this user',
+          icon: <FrownOutlined style={{ color: '#ff0000' }} />
+        }); 
+      }
+    }
   return (
-    <div 
-        className="col-md-4 p-1 sideBar"
-    >
+    <div className="col-md-4 p-1 sideBar">
         {contextHolder}
+      <div className="d-flex">
        <Input
           placeholder="Search users to chat...."
           size="large"
@@ -72,7 +109,7 @@ const Sidebar = () => {
             <Tooltip title="Search">
               {show ? 
               <ArrowLeftOutlined 
-                onClick={() => setShow(false)}
+                onClick={() => handleBack()}
                 style={{ fontSize:'20px' }} />
                 :<SearchOutlined 
                     onClick={handleSearch}
@@ -80,13 +117,25 @@ const Sidebar = () => {
             </Tooltip>
           }
         />
+        <UsergroupAddOutlined
+          onClick={showModal} 
+          style={{fontSize:"30px", marginTop:"3px", cursor:"pointer"}}
+        />
+      </div>
+          <CreateGroup 
+            open={open}
+            setOpen={setOpen}
+          />
         {show ? 
         <List
           itemLayout="horizontal"
           className="mt-1"
           dataSource={searchResults}
           renderItem={(item, index) => (
-            <List.Item key={index}>
+            <List.Item 
+              key={index}
+              onClick={() => handleNewChat(item)}
+              >
               <List.Item.Meta
                 avatar={<Avatar>{item?.name[0].toUpperCase()}</Avatar>}
                 title={<p>{item?.name}</p>}
@@ -105,7 +154,7 @@ const Sidebar = () => {
                 onClick={() => handleChat(item)}
                 >
               <List.Item.Meta
-                avatar={<Avatar>{item?.isgroupChat === 0 ? item?.name[0].toUpperCase() : item?.chatName[0].toUpperCase()}</Avatar>}
+                avatar={<Avatar>{item?.isgroupChat === 0 ? item?.name[0]?.toUpperCase() : item?.chatName[0]?.toUpperCase()}</Avatar>}
                 title={item?.isgroupChat === 0 ? <h6>{item?.name}</h6> : <h6>{item?.chatName}</h6>}
                 description={item?.isgroupChat === 0 ? <p>user: {item?.username}</p>: <p>admin: {item?.chatAdmin}</p>}
               />
